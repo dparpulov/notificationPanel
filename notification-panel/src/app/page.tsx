@@ -1,13 +1,9 @@
-import * as Dialog from "@radix-ui/react-dialog";
-import {
-	Cross2Icon,
-	BellIcon,
-	PlusIcon,
-} from "@radix-ui/react-icons";
-import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { BellIcon } from "@radix-ui/react-icons";
+import * as Popover from "@radix-ui/react-popover";
 import { Notification } from "./types";
 import { NotificationTypes } from "./constants";
 import { NotificationOverview } from "./components/notification-overview";
+import { NotificationForm } from "./components/notification-form";
 
 // Fetch notifications here
 const notifications: Notification[] = [
@@ -35,7 +31,7 @@ const notifications: Notification[] = [
 	},
 	{
 		id: "4",
-		isRead: false,
+		isRead: true,
 		type: NotificationTypes.JOIN_WORKSPACE,
 		username: "User with very long name",
 	},
@@ -58,28 +54,30 @@ export default function Home() {
 
 	return (
 		<>
-			<DropdownMenu.Root>
-				<DropdownMenu.Trigger asChild>
+			<Popover.Root>
+				<Popover.Trigger asChild>
 					<button className="mb-8 bg-white hover:bg-emerald-100 hover:text-emerald-800 font-bold py-2 px-2 rounded inline-flex items-center">
 						<BellIcon height={24} width={24} />
-						<span className="pl-1">20+</span>
+						<span className="pl-1">
+							{notifications.length <= 10
+								? notifications.length
+								: "10+"}
+						</span>
 					</button>
-				</DropdownMenu.Trigger>
+				</Popover.Trigger>
 
-				<DropdownMenu.Portal>
-					<DropdownMenu.Content>
-						<DropdownMenu.Item>
-							<NotificationOverview
-								notifications={notifications}
-							/>
-						</DropdownMenu.Item>
+				<Popover.Portal>
+					<Popover.Content>
+						<NotificationOverview
+							notifications={notifications}
+						/>
 
-						<DropdownMenu.Separator className="h-[1px] bg-violet6 m-[5px]" />
+						<Popover.Arrow className="fill-white" />
+					</Popover.Content>
+				</Popover.Portal>
+			</Popover.Root>
 
-						<DropdownMenu.Arrow className="fill-white" />
-					</DropdownMenu.Content>
-				</DropdownMenu.Portal>
-			</DropdownMenu.Root>
+			<NotificationForm />
 		</>
 	);
 }
