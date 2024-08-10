@@ -40,18 +40,20 @@ export function NotificationCard({
 				redirectUrl = "/workspace";
 				break;
 			default:
-				redirectUrl = "/"; //TODO: remove later
 				break;
 		}
 
-		router.push(redirectUrl);
+		if (redirectUrl) {
+			router.push(redirectUrl);
+		}
 	};
 
 	return (
 		// TODO: Each type should have a different color
+		// TODO: Add toast for Platform types
 		<div
 			onClick={handleClick}
-			className={`flex items-center w-full p-4 mb-1 last:mb-0 ${
+			className={`flex items-center w-full p-4 mb-1 last:mb-0.5 ${
 				isRead ? "bg-gray-300" : "bg-white"
 			} shadow-md cursor-pointer hover:bg-emerald-100 hover:text-emerald-800 hover:ring-2 hover:ring-emerald-500 transition-colors`}
 		>
@@ -64,7 +66,6 @@ export function NotificationCard({
 					/>
 					<Avatar.Fallback
 						className="bg-white p-2"
-						delayMs={600}
 						aria-hidden={true}
 					>
 						<div>
