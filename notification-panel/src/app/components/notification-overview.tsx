@@ -23,8 +23,7 @@ export function NotificationOverview({
 	};
 
 	return (
-		// TODO check mobile
-		<div className="flex flex-col items-center max-w-lg bg-white shadow-md cursor-pointer my-1 max-h-96 overflow-auto hover:bg-gray-100 transition-colors">
+		<div className="flex flex-col items-center w-80 sm:w-96 p-0.5 md:w-auto max-w-lg bg-white shadow-md cursor-pointer max-h-96 overflow-auto">
 			{notifications.map(
 				(notification: Notification, index) => (
 					<NotificationCard
