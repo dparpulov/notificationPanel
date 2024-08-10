@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url = env("POSTGRES_PRISMA_URL") // uses connection pooling
+  directUrl = env("POSTGRES_URL_NON_POOLING") // uses a direct connection
+}
+
+enum NotificationType {
+  PLATFORM_UPDATE @map("Platform update")
+	COMMENT_TAG     @map("Comments tag")
+	ACCESS_GRANTED  @map("Access granted")
+	JOIN_WORKSPACE  @map("Join workspaces")
+}
+
+model Notification {
+  id          String  @id @default(cuid())
+  isRead      Boolean @default(false)
+  type        String
+
+  // PlatformNotification specific fields
+  releaseNumber String?
+
+  // UserNotification specific fields
+  username     String?
+  avatarUrl    String?
+
+  @@index([type]) // Index on type for efficient querying
+}
