@@ -5,38 +5,62 @@ import {
 	Cross2Icon,
 	PlusIcon,
 } from "@radix-ui/react-icons";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { NotificationTypes } from "../constants";
 import { useForm } from 'react-hook-form';
-import { NotificationCreate } from "./notification-create";
+
+type NotificationFormProps = {
+	type: NotificationTypes;
+	releaseNumber?: string;
+	username?: string;
+	avatarUrl?: string;
+};
 
 export function NotificationForm({}: {}) {
 	const [type, setType] = useState(
 		NotificationTypes.PLATFORM_UPDATE
 	);
-	const [releaseNumber, setReleaseNumber] = useState(null);
-	const [username, setUsername] = useState(null);
-	const [avatarUrl, setAvatarUrl] = useState(null);
-	const { register, handleSubmit, formState: { errors } } = useForm();
+	const { register, unregister, handleSubmit, getValues, formState: { errors } } = useForm({
+		defaultValues: {
+			type: type,
+			releaseNumber: '1.2.3',
+			username: 'John Doe',
+			avatarUrl: 'https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?&w=128&h=128&dpr=2&q=80',
+		}
+	});
+
+	useEffect(() => {
+		if (type === NotificationTypes.PLATFORM_UPDATE) {
+			unregister('username');
+			unregister('avatarUrl');
+		} else {
+			unregister('releaseNumber');
+		}
+	}, [type, unregister]);
 
 
-	const onSubmit = async (data, e) => {
+	const onSubmit = async () => {
+		const values = getValues();
+
 		try {
 			const response = await fetch('/api/create-notification', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
 				},
-				body: JSON.stringify(data),
+				body: JSON.stringify({
+					type: values.type,
+					releaseNumber: values.releaseNumber,
+					username: values.username,
+					avatarUrl: values.avatarUrl,
+				}),
 			});
 
 			const notification = await response.json();
-
-			// NotificationCreate(data);
-			return notification;
+      // TODO: Create a toast notification
     } catch (error) {
       console.error('Error creating notification:', error);
-      // TODO: proper error handling
+      // TODO: Create a toast notification
     }
   };
 
@@ -74,27 +98,17 @@ export function NotificationForm({}: {}) {
 									onChange(e) {setType(e.target.value)}
 								})}
 							>
-								<option
-									value={NotificationTypes.PLATFORM_UPDATE}
-								>
-									{NotificationTypes.PLATFORM_UPDATE}
-								</option>
-								<option value={NotificationTypes.COMMENT_TAG}>
-									{NotificationTypes.COMMENT_TAG}
-								</option>
-								<option
-									value={NotificationTypes.ACCESS_GRANTED}
-								>
-									{NotificationTypes.ACCESS_GRANTED}
-								</option>
-								<option
-									value={NotificationTypes.JOIN_WORKSPACE}
-								>
-									{NotificationTypes.JOIN_WORKSPACE}
-								</option>
+								{Object.values(NotificationTypes).map((type) => (
+									<option
+										key={type}
+										value={type}
+									>
+										{type}
+									</option>
+								))}
 							</select>
 						</fieldset>
-						{type == NotificationTypes.PLATFORM_UPDATE && (
+						{type === NotificationTypes.PLATFORM_UPDATE && (
 							<fieldset className="mb-4 flex items-center gap-5">
 								<label
 									className="w-[90px] text-left"
@@ -105,16 +119,16 @@ export function NotificationForm({}: {}) {
 								<input
 									className="inline-flex h-[35px] w-36 flex-1 items-center justify-center rounded-[4px] px-[10px] leading-none shadow-[0_0_0_1px] outline-none focus:shadow-[0_0_0_2px]"
 									id="releaseNumber"
+									placeholder="1.2.3"
 									defaultValue="1.2.3"
 									{...register('releaseNumber', {
 											required: false,
-											onChange(e) {setReleaseNumber(e.target.value)},
 										}
 									)}
 								/>
 							</fieldset>
 						)}
-						{type != NotificationTypes.PLATFORM_UPDATE && (
+						{type !== NotificationTypes.PLATFORM_UPDATE && (
 							<>
 								<fieldset className="mb-4 flex items-center gap-5">
 									<label
@@ -126,12 +140,10 @@ export function NotificationForm({}: {}) {
 									<input
 										className="inline-flex h-[35px] w-36 flex-1 items-center justify-center rounded-[4px] px-[10px] leading-none shadow-[0_0_0_1px] outline-none focus:shadow-[0_0_0_2px]"
 										id="username"
-										defaultValue="John Doe"
+										placeholder="John Doe"
+										defaultValue={"John Doe"}
 										{...register('username', {
 											required: false,
-											onChange(e) {
-												setUsername(e.target.value)
-											},
 										})}
 									/>
 								</fieldset>
@@ -139,19 +151,17 @@ export function NotificationForm({}: {}) {
 								<fieldset className="mb-4 flex items-center gap-5">
 									<label
 										className="w-[90px] text-left"
-										htmlFor="avatar"
+										htmlFor="avatarUrl"
 									>
 										Avatar
 									</label>
 									<input
 										className="inline-flex h-[35px] w-36 flex-1 items-center justify-center rounded-[4px] px-[10px] leading-none shadow-[0_0_0_1px] outline-none focus:shadow-[0_0_0_2px]"
-										id="avatar"
+										id="avatarUrl"
+										placeholder="Image URL"
 										defaultValue="https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?&w=128&h=128&dpr=2&q=80"
-										{...register('avatar', {
+										{...register('avatarUrl', {
 											required: false,
-											onChange(e) {
-												setAvatarUrl(e.target.value)
-											},
 										})}
 									/>
 								</fieldset>
@@ -161,8 +171,8 @@ export function NotificationForm({}: {}) {
 						<div className="mt-[25px] flex justify-end">
 							<button
 								type="submit"
-								className="bg-emerald-100 hover:bg-emerald-300 focus:shadow-green7 inline-flex h-[35px] items-center justify-center rounded-[4px] px-4 font-medium leading-none focus:shadow-[0_0_0_2px] focus:outline-none">
-								Save changes
+								className="bg-emerald-100 hover:bg-emerald-300 focus:shadow-green inline-flex h-[35px] items-center justify-center rounded-[4px] px-4 font-medium leading-none focus:shadow-[0_0_0_2px] focus:outline-none">
+								Create notification
 							</button>
 						</div>
 					</form>

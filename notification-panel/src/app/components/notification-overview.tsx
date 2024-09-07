@@ -1,6 +1,16 @@
 import { NotificationTypes } from "../constants";
-import { Notification } from "../types";
+import { Notification, PlatformNotification, UserNotification } from "../types";
 import { NotificationCard } from "./notification-card";
+
+const notificationDescriptionMap = {
+	[NotificationTypes.PLATFORM_UPDATE]: "New features - see what's new",
+	[NotificationTypes.COMMENT_TAG]: (username: string): string =>
+		`${username} tagged you in a comment`,
+	[NotificationTypes.ACCESS_GRANTED]: (username: string): string =>
+		`${username} shared a chat with you`,
+	[NotificationTypes.JOIN_WORKSPACE]: (username: string): string =>
+		`${username} joined your workplace`,
+};
 
 export function NotificationOverview({
 	notifications,
@@ -8,22 +18,19 @@ export function NotificationOverview({
 	notifications: Notification[];
 }) {
 	const getNotificationDescription = (
-		notification: Notification
+		notification: PlatformNotification | UserNotification
 	) => {
-		switch (notification.type) {
-			case NotificationTypes.PLATFORM_UPDATE:
-				return "New features - see what's new";
-			case NotificationTypes.COMMENT_TAG:
-				return `${notification.username} tagged you in a comment`;
-			case NotificationTypes.ACCESS_GRANTED:
-				return `${notification.username} shared a chat with you`;
-			case NotificationTypes.JOIN_WORKSPACE:
-				return `${notification.username} joined your workplace`;
+		const description = notificationDescriptionMap[notification.type];
+
+		if (typeof description === 'function' && 'username' in notification) {
+			return description(notification.username);
 		}
+
+		return description as string;
 	};
 
 	return (
-		<div className="flex flex-col items-center w-80 sm:w-96 p-0.5 md:w-auto max-w-lg bg-white shadow-md cursor-pointer max-h-96 overflow-auto">
+		<div className="flex flex-col items-center w-80 sm:w-96 p-0.5 md:w-auto max-w-lg max-h-80 bg-white shadow-md cursor-pointer overflow-auto">
 			{notifications.map(
 				(notification: Notification, index) => (
 					<NotificationCard
@@ -35,9 +42,7 @@ export function NotificationOverview({
 						})}
 						type={notification.type}
 						isRead={notification.isRead}
-						description={getNotificationDescription(
-							notification
-						)}
+						description={getNotificationDescription(notification)}
 					/>
 				)
 			)}

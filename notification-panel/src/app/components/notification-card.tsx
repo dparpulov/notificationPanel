@@ -13,9 +13,9 @@ import {
 interface NotificationCardProps {
 	type: NotificationType;
 	isRead: boolean;
+	description: string;
 	username?: string;
 	avatarUrl?: string;
-	description: string;
 }
 
 export function NotificationCard({
@@ -49,7 +49,6 @@ export function NotificationCard({
 	};
 
 	return (
-		// TODO: Each type should have a different color
 		// TODO: Add toast for Platform types
 		<div
 			onClick={handleClick}
@@ -90,7 +89,7 @@ export function NotificationCard({
 			<div className="flex-1">{description}</div>
 
 			<button
-				onClick={(e) => e.stopPropagation()} // TODO Extra: Option to change status of notification
+				onClick={(e) => e.stopPropagation()} // TODO: Option to change status of notification
 				className="ml-4 p-2 focus:outline-none hover:ring-2 hover:ring-emerald-500 rounded-full"
 				aria-label="Options"
 			>

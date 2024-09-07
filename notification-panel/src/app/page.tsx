@@ -1,7 +1,6 @@
 import { BellIcon } from "@radix-ui/react-icons";
 import * as Popover from "@radix-ui/react-popover";
 import { Notification } from "./types";
-import { NotificationTypes } from "./constants";
 import { NotificationOverview } from "./components/notification-overview";
 import { NotificationForm } from "./components/notification-form";
 import prisma from './lib/prisma';

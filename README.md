@@ -11,7 +11,7 @@
             - **Close button** which cancels the creation of the notification.
     - Each notification has a type:
         1. **[Platform update]** → New features - see what’s new → On click, the app shows an alert(`"1.2.3"`).
-        2. **[Comment Tag]** → `<Somebody>` tagged you in a comment → On click, the app takes you to `/comments` 
+        2. **[Comment Tag]** → `<Somebody>` tagged you in a comment → On click, the app takes you to `/comments`
         3. **[Access granted]** → `<Somebody>` shared a chat with you → On click, the app takes you to `/chats`.
         4. **[Join workspace]** → `<Somebody>` joined your workspace → On click, the app takes you to `/workspace`.
     - Each notification type has a different color.
