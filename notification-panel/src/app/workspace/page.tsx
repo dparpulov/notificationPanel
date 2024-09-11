@@ -1,3 +1,8 @@
 export default function Workspace() {
-  return <>Workspace</>;
+
+  return (
+    <div>
+      <h1>Workspace</h1>
+    </div>
+  );
 }

@@ -1,9 +1,10 @@
+"use client";
+
 import { BellIcon } from "@radix-ui/react-icons";
 import * as Popover from "@radix-ui/react-popover";
-import { Notification } from "./types";
 import { NotificationOverview } from "./components/notification-overview";
 import { NotificationForm } from "./components/notification-form";
-import prisma from './lib/prisma';
+import useNotifications from "./utils/useNotifications";
 
 // TODO: Delete later static notifications
 // const notifications: Notification[] = [
@@ -49,19 +50,8 @@ import prisma from './lib/prisma';
 // 	},
 // ];
 
-async function getNotifications(): Promise<Notification[] | []> {
-  try {
-    const notifications = await prisma.notification.findMany() as Notification[];
-
-    return notifications ? notifications : [];
-  } catch (error) {
-    console.error('Error fetching notifications:', error);
-    return [];
-  }
-}
-
-export default async function Home() {
-	const notifications = await getNotifications();
+export default function Home() {
+	const { notifications, error } = useNotifications();
 
 	return (
 		<>
