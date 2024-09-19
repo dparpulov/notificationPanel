@@ -7,7 +7,7 @@ import {
 } from "@radix-ui/react-icons";
 import { useEffect, useState } from "react";
 import { NotificationTypes } from "../constants";
-import { useForm } from 'react-hook-form';
+import { FieldValues, UseFormRegister, useForm } from 'react-hook-form';
 import Toast from "./toast";
 
 type NotificationFormProps = {
@@ -17,21 +17,78 @@ type NotificationFormProps = {
 	avatarUrl?: string;
 };
 
+const renderPlatformTypeFormFields = (register: UseFormRegister<FieldValues>) => {
+	return (
+		<fieldset className="mb-4 flex items-center gap-5">
+			<label
+				className="w-[90px] text-left"
+				htmlFor="releaseNumber"
+			>
+				Release number
+			</label>
+			<input
+				className="inline-flex h-[35px] w-36 flex-1 items-center justify-center rounded-[4px] px-[10px] leading-none shadow-[0_0_0_1px] outline-none focus:shadow-[0_0_0_2px]"
+				id="releaseNumber"
+				placeholder="1.2.3"
+				defaultValue="1.2.3"
+				{...register('releaseNumber', {
+					required: false,
+				})}
+			/>
+		</fieldset>
+	);
+}
+
+const renderUserTypeFormFields = (register: UseFormRegister<FieldValues>) => {
+	return (
+		<>
+			<fieldset className="mb-4 flex items-center gap-5">
+				<label
+					className="w-[90px] text-left"
+					htmlFor="username"
+				>
+					Username
+				</label>
+				<input
+					className="inline-flex h-[35px] w-36 flex-1 items-center justify-center rounded-[4px] px-[10px] leading-none shadow-[0_0_0_1px] outline-none focus:shadow-[0_0_0_2px]"
+					id="username"
+					placeholder="John Doe"
+					defaultValue="John Doe"
+					{...register('username', {
+						required: false,
+					})}
+				/>
+			</fieldset>
+
+			<fieldset className="mb-4 flex items-center gap-5">
+				<label
+					className="w-[90px] text-left"
+					htmlFor="avatarUrl"
+				>
+					Avatar
+				</label>
+				<input
+					className="inline-flex h-[35px] w-36 flex-1 items-center justify-center rounded-[4px] px-[10px] leading-none shadow-[0_0_0_1px] outline-none focus:shadow-[0_0_0_2px]"
+					id="avatarUrl"
+					placeholder="Image URL"
+					defaultValue="https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?&w=128&h=128&dpr=2&q=80"
+					{...register('avatarUrl', {
+						required: false,
+					})}
+				/>
+			</fieldset>
+		</>
+	);
+}
+
 export function NotificationForm({ }: {}) {
 	const [type, setType] = useState(
 		NotificationTypes.PLATFORM_UPDATE
 	);
 	const [showToast, setShowToast] = useState(false);
-	const [toastTitle, setToastTitle] = useState<string>("Notification successfully created");
+	const [toastTitle, setToastTitle] = useState("Notification successfully created");
 
-	const { register, unregister, handleSubmit, getValues, formState: { errors } } = useForm({
-		defaultValues: {
-			type: type,
-			releaseNumber: '1.2.3',
-			username: 'John Doe',
-			avatarUrl: 'https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?&w=128&h=128&dpr=2&q=80',
-		}
-	});
+	const { register, unregister, handleSubmit, getValues, formState: { errors } } = useForm();
 
 	useEffect(() => {
 		if (type === NotificationTypes.PLATFORM_UPDATE) {
@@ -113,66 +170,7 @@ export function NotificationForm({ }: {}) {
 									))}
 								</select>
 							</fieldset>
-							{type === NotificationTypes.PLATFORM_UPDATE && (
-								<fieldset className="mb-4 flex items-center gap-5">
-									<label
-										className="w-[90px] text-left"
-										htmlFor="releaseNumber"
-									>
-										Release number
-									</label>
-									<input
-										className="inline-flex h-[35px] w-36 flex-1 items-center justify-center rounded-[4px] px-[10px] leading-none shadow-[0_0_0_1px] outline-none focus:shadow-[0_0_0_2px]"
-										id="releaseNumber"
-										placeholder="1.2.3"
-										defaultValue="1.2.3"
-										{...register('releaseNumber', {
-											required: false,
-										}
-										)}
-									/>
-								</fieldset>
-							)}
-							{type !== NotificationTypes.PLATFORM_UPDATE && (
-								<>
-									<fieldset className="mb-4 flex items-center gap-5">
-										<label
-											className="w-[90px] text-left"
-											htmlFor="username"
-										>
-											Username
-										</label>
-										<input
-											className="inline-flex h-[35px] w-36 flex-1 items-center justify-center rounded-[4px] px-[10px] leading-none shadow-[0_0_0_1px] outline-none focus:shadow-[0_0_0_2px]"
-											id="username"
-											placeholder="John Doe"
-											defaultValue={"John Doe"}
-											{...register('username', {
-												required: false,
-											})}
-										/>
-									</fieldset>
-
-									<fieldset className="mb-4 flex items-center gap-5">
-										<label
-											className="w-[90px] text-left"
-											htmlFor="avatarUrl"
-										>
-											Avatar
-										</label>
-										<input
-											className="inline-flex h-[35px] w-36 flex-1 items-center justify-center rounded-[4px] px-[10px] leading-none shadow-[0_0_0_1px] outline-none focus:shadow-[0_0_0_2px]"
-											id="avatarUrl"
-											placeholder="Image URL"
-											defaultValue="https://images.unsplash.com/photo-1492633423870-43d1cd2775eb?&w=128&h=128&dpr=2&q=80"
-											{...register('avatarUrl', {
-												required: false,
-											})}
-										/>
-									</fieldset>
-								</>
-							)}
-
+							{type === NotificationTypes.PLATFORM_UPDATE ? renderPlatformTypeFormFields(register) : renderUserTypeFormFields(register)}
 							<div className="mt-[25px] flex justify-end">
 								<button
 									type="submit"

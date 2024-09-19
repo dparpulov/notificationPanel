@@ -5,6 +5,7 @@ import * as Popover from "@radix-ui/react-popover";
 import { NotificationOverview } from "./components/notification-overview";
 import { NotificationForm } from "./components/notification-form";
 import useNotifications from "./utils/useNotifications";
+import Loader from "./components/loader";
 
 // TODO: Delete later static notifications
 // const notifications: Notification[] = [
@@ -51,7 +52,7 @@ import useNotifications from "./utils/useNotifications";
 // ];
 
 export default function Home() {
-	const { notifications, error } = useNotifications();
+	const { notifications, error, isLoading } = useNotifications();
 
 	return (
 		<>
@@ -60,23 +61,22 @@ export default function Home() {
 					<button className="mb-8 bg-white hover:bg-emerald-100 hover:text-emerald-800 font-bold py-2 px-2 rounded inline-flex items-center">
 						<BellIcon height={24} width={24} />
 						<span className="pl-1">
-							{notifications.length <= 10
-								? notifications.length
-								: "10+"}
+							{
+								isLoading ? <Loader /> :
+									notifications.length <= 10
+										? notifications.length
+										: "10+"
+							}
 						</span>
 					</button>
 				</Popover.Trigger>
 
 				<Popover.Portal>
 					<Popover.Content>
-						{notifications.length > 0 && (
-							<>
-								<NotificationOverview
-									notifications={notifications}
-								/>
-								<Popover.Arrow className="fill-white" />
-							</>)
-						}
+						<NotificationOverview
+							notifications={notifications}
+						/>
+						<Popover.Arrow className="fill-white" />
 
 					</Popover.Content>
 				</Popover.Portal>
