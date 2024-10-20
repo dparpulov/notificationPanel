@@ -96,7 +96,7 @@ export const NotificationsProvider: FC<{ children: ReactNode }> = ({ children })
 
   useEffect(() => {
     fetchNotifications();
-  }, [fetchNotifications]);
+  }, []);
 
   const value = {
     notifications,
