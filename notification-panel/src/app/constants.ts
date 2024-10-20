@@ -4,3 +4,9 @@ export enum NotificationTypes {
 	ACCESS_GRANTED = "Access granted",
 	JOIN_WORKSPACE = "Join workspaces",
 };
+
+export enum ToastTypes {
+	SUCCESS = "success",
+	ERROR = "error",
+	INFO = "info",
+};

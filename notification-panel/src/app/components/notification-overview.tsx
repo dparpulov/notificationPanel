@@ -42,14 +42,8 @@ export function NotificationOverview({
 			{notifications.map(
 				(notification: Notification, index) => (
 					<NotificationCard
-						key={`notification-${index}`}
-						{...(notification.type !==
-							NotificationTypes.PLATFORM_UPDATE && {
-							username: notification.username,
-							avatarUrl: notification.avatarUrl,
-						})}
-						type={notification.type}
-						isRead={notification.isRead}
+						key={`notification-${notification.id}-${index}`}
+						notification={notification}
 						description={getNotificationDescription(notification)}
 					/>
 				)

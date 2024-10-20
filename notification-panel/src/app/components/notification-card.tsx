@@ -4,81 +4,90 @@ import { DotsVerticalIcon } from "@radix-ui/react-icons";
 import * as Avatar from "@radix-ui/react-avatar";
 import { useRouter } from "next/navigation";
 import { NotificationTypes } from "../constants";
-import { NotificationType } from "../types";
+import { Notification } from "../types";
 import {
 	GearIcon,
 	PersonIcon,
 } from "@radix-ui/react-icons";
+import * as DropdownMenu from '@radix-ui/react-dropdown-menu';
+import { useToast } from "../utils/ToastContext";
+import { useState } from "react";
+import useNotifications from "../utils/NotificationContext";
 
 interface NotificationCardProps {
-	type: NotificationType;
-	isRead: boolean;
+	notification: Notification,
 	description: string;
-	username?: string;
-	avatarUrl?: string;
 }
 
 export function NotificationCard({
-	type,
-	isRead,
+	notification,
 	description,
-	username,
-	avatarUrl,
 }: NotificationCardProps) {
 	const router = useRouter();
+	const toast = useToast();
+	const [currentNotification, setCurrentNotification] = useState<Notification>(notification);
+	const { updateNotification, deleteNotification } = useNotifications();
+	const isUserNotification = currentNotification.type !== NotificationTypes.PLATFORM_UPDATE;
 
 	const handleClick = () => {
-		let redirectUrl;
-		switch (type) {
-			case NotificationTypes.ACCESS_GRANTED:
-				redirectUrl = "/chats";
-				break;
-			case NotificationTypes.COMMENT_TAG:
-				redirectUrl = "/comments";
-				break;
-			case NotificationTypes.JOIN_WORKSPACE:
-				redirectUrl = "/workspace";
-				break;
-			default:
-				break;
+		if (!currentNotification.isRead) updateNotificationState();
+
+		const routesMap = {
+			[NotificationTypes.ACCESS_GRANTED]: "/chats",
+			[NotificationTypes.COMMENT_TAG]: "/comments",
+			[NotificationTypes.JOIN_WORKSPACE]: "/workspace",
+		};
+
+		if (isUserNotification) {
+			router.push(routesMap[currentNotification.type]);
+			return;
 		}
 
-		if (redirectUrl) {
-			router.push(redirectUrl);
-		}
+		toast.info(currentNotification.releaseNumber);
+	};
+
+	const updateNotificationState = async () => {
+		const updatedNotification = await updateNotification(currentNotification.id, !currentNotification.isRead);
+		setCurrentNotification(updatedNotification);
+	}
+
+	const handleViewClick = async (e: React.MouseEvent) => {
+		e.stopPropagation();
+		updateNotificationState();
+	};
+
+	const handleDeleteClick = async (e: React.MouseEvent) => {
+		e.stopPropagation();
+		await deleteNotification(currentNotification.id);
 	};
 
 	return (
-		// TODO: Add toast for Platform types
 		<div
 			onClick={handleClick}
-			className={`flex items-center w-full p-4 mb-1 last:mb-0.5 ${
-				isRead ? "bg-gray-300" : "bg-white"
-			} shadow-md cursor-pointer hover:bg-emerald-100 hover:text-emerald-800 hover:ring-2 hover:ring-emerald-500 transition-colors`}
+			className={`flex items-center w-full p-4 ${currentNotification.isRead ? "bg-gray-200" : "bg-white"
+				} shadow-md cursor-pointer hover:ring-2 hover:ring-emerald-500 mb-1 transition-colors`}
 		>
 			<div className="mr-4">
 				<Avatar.Root className="bg-blackA1 inline-flex h-[45px] w-[45px] select-none items-center justify-center overflow-hidden rounded-full align-middle">
-					<Avatar.Image
-						className="h-full w-full rounded-[inherit] object-cover"
-						src={avatarUrl}
+					{isUserNotification && <Avatar.Image
+						className="h-full object-cover"
+						src={currentNotification.avatarUrl}
 						aria-hidden={true}
-					/>
+					/>}
 					<Avatar.Fallback
-						className="bg-white p-2"
+						className="bg-white p-3"
 						aria-hidden={true}
 					>
 						<div>
-							{username ? (
+							{isUserNotification ? (
 								<PersonIcon
 									width={24}
 									height={24}
-									className={"rounded-full"}
 								/>
 							) : (
 								<GearIcon
 									width={24}
 									height={24}
-									className={"rounded-full"}
 								/>
 							)}
 						</div>
@@ -88,13 +97,37 @@ export function NotificationCard({
 
 			<div className="flex-1">{description}</div>
 
-			<button
-				onClick={(e) => e.stopPropagation()} // TODO: Option to change status of notification
-				className="ml-4 p-2 focus:outline-none hover:ring-2 hover:ring-emerald-500 rounded-full"
-				aria-label="Options"
-			>
-				<DotsVerticalIcon width={24} height={24} />
-			</button>
+			<DropdownMenu.Root>
+				<DropdownMenu.Trigger asChild>
+					<button
+						onClick={(e) => e.stopPropagation()}
+						className="ml-4 p-2 focus:outline-none hover:ring-2 hover:ring-emerald-500 rounded-full"
+						aria-label="Options"
+					>
+						<DotsVerticalIcon width={24} height={24} />
+					</button>
+				</DropdownMenu.Trigger>
+				<DropdownMenu.Portal>
+					<DropdownMenu.Content
+						className="min-w-[220px] bg-white shadow-[0px_10px_38px_-10px_rgba(22,_23,_24,_0.35),_0px_10px_20px_-15px_rgba(22,_23,_24,_0.2)] will-change-[opacity,transform] data-[side=top]:animate-slideDownAndFade data-[side=right]:animate-slideLeftAndFade data-[side=bottom]:animate-slideUpAndFade data-[side=left]:animate-slideRightAndFade"
+						sideOffset={4}
+					>
+						<DropdownMenu.Item
+							onClick={(e) => handleDeleteClick(e)}
+							className="text-sm hover:ring-2 hover:ring-emerald-500 p-5 leading-none flex items-center h-[25px] px-2 select-none outline-none"
+						>
+							Delete
+						</DropdownMenu.Item>
+						<DropdownMenu.Item
+							onClick={(e) => handleViewClick(e)}
+							className="text-sm hover:ring-2 hover:ring-emerald-500 p-5 leading-none flex items-center h-[25px] px-2 select-none outline-none"
+						>
+							View
+						</DropdownMenu.Item>
+						<DropdownMenu.Arrow className="fill-white" />
+					</DropdownMenu.Content>
+				</DropdownMenu.Portal>
+			</DropdownMenu.Root>
 		</div>
 	);
 }

@@ -1,30 +1,9 @@
-import { NotificationTypes } from '@/app/constants';
-import { PrismaClient } from '@prisma/client';
 import { z } from 'zod';
+import { NotificationSchema } from './notificationSchemas';
+import prisma from '../../lib/prisma';
+import { NextRequest, NextResponse } from 'next/server';
 
-const prisma = new PrismaClient();
-
-// TODO move schemas out of this route file?
-const BaseNotificationSchema = z.object({
-  type: z.nativeEnum(NotificationTypes),
-});
-
-const PlatformNotificationSchema = BaseNotificationSchema.extend({
-  type: z.literal(NotificationTypes.PLATFORM_UPDATE),
-  releaseNumber: z.string().min(1, 'Release number is required'),
-});
-
-const UserNotificationSchema = BaseNotificationSchema.extend({
-  type: z.string().refine((value) => value !== NotificationTypes.PLATFORM_UPDATE, {
-    message: 'Type cannot be PLATFORM_UPDATE',
-  }),
-  username: z.string().min(1, 'Username is required'),
-  avatarUrl: z.string().url().optional(),
-});
-
-const NotificationSchema = z.union([PlatformNotificationSchema, UserNotificationSchema]);
-
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   try {
     const data = await request.json();
 
@@ -32,26 +11,14 @@ export async function POST(request: Request) {
       data: NotificationSchema.parse(data),
     });
 
-    return new Response(JSON.stringify({ message: 'Notification created', notification }), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return NextResponse.json({ message: 'Notification created', notification }, { status: 201 });
   } catch (error) {
-    console.error('Error:', error);
-
     if (error instanceof z.ZodError) {
-      return new Response(
-        JSON.stringify({ error: 'Validation error', details: error.errors }),
-        {
-          status: 400,
-          headers: { 'Content-Type': 'application/json' },
-        }
-      );
+      return NextResponse.json({ error: 'Validation error', details: error.errors }, { status: 400 });
     }
 
-    return new Response(JSON.stringify({ error: 'Internal Server Error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } finally {
+    await prisma.$disconnect();
   }
 }
