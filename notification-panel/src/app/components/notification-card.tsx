@@ -43,6 +43,7 @@ export function NotificationCard({
 			return;
 		}
 
+		// TODO shows release number before error is shown when updating fails
 		toast.info(currentNotification.releaseNumber);
 	};
 

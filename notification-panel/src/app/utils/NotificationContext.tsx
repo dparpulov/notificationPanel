@@ -76,7 +76,7 @@ export const NotificationsProvider: FC<{ children: ReactNode }> = ({ children })
     } finally {
       setIsLoading(false);
     }
-  }, [toast]);
+  }, [toast, notifications]);
 
   const deleteNotification = useCallback(async (id: string) => {
     setIsLoading(true);
@@ -96,7 +96,7 @@ export const NotificationsProvider: FC<{ children: ReactNode }> = ({ children })
 
   useEffect(() => {
     fetchNotifications();
-  }, []);
+  }, [fetchNotifications]);
 
   const value = {
     notifications,
