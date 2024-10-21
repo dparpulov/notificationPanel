@@ -7,6 +7,7 @@ const NotificationSchema = z.object({
   isRead: z.boolean({ message: 'Notification read status must be a boolean' }),
 });
 
+// TODO Look into why this fails on production as well as delete-notification
 export async function PATCH(request: NextRequest, { params }: {
   params: {
     id: string,

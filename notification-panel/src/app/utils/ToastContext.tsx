@@ -7,7 +7,7 @@ import * as ToastPrimitive from '@radix-ui/react-toast';
 import { Cross1Icon } from '@radix-ui/react-icons';
 
 interface ToastContextType {
-  showToast: (message: string, type: ToastType) => void;
+  showToast: (message: string, type: ToastType, duration?: number) => void;
 }
 
 const ToastContext = createContext<ToastContextType | null>(null);
@@ -18,9 +18,9 @@ export const useToast = () => {
     throw new Error('useToast must be used within a ToastProvider');
   }
   return {
-    success: (message: string) => context.showToast(message, ToastTypes.SUCCESS),
-    error: (message: string) => context.showToast(message, ToastTypes.ERROR),
-    info: (message: string) => context.showToast(message, ToastTypes.INFO),
+    success: (message: string, duration: number = 1500) => context.showToast(message, ToastTypes.SUCCESS, duration),
+    error: (message: string, duration: number = 1500) => context.showToast(message, ToastTypes.ERROR, duration),
+    info: (message: string, duration: number = 1500) => context.showToast(message, ToastTypes.INFO, duration),
   };
 };
 
@@ -28,11 +28,13 @@ export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
   const [open, setOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [type, setType] = useState<ToastType>(ToastTypes.INFO);
+  const [duration, setDuration] = useState(1500);
 
-  const showToast = useCallback((newMessage: string, newType: ToastType) => {
-    setMessage(newMessage);
-    setType(newType);
+  const showToast = useCallback((message: string, type: ToastType, duration?: number) => {
+    setMessage(message);
+    setType(type);
     setOpen(true);
+    setDuration(duration || 1500);
   }, []);
 
   return (
@@ -48,6 +50,7 @@ export const ToastProvider: FC<{ children: ReactNode }> = ({ children }) => {
             }`}
           open={open}
           onOpenChange={setOpen}
+          duration={duration}
         >
           <ToastPrimitive.Title className="[grid-area:_title] mb-[5px] font-medium text-slate-800 text-[15px]">
             {message}
